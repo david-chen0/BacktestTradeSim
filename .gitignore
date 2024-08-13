@@ -1,0 +1,23 @@
+# Ignore object files, static libraries, and dynamic libraries
+*.o
+*.a
+*.so
+*.dll
+
+# Ignore executables
+BacktestTradeSim.exe
+BacktestTradeSim
+
+# Ignore build directories
+/build/
+/bin/
+/out/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+*.log
+
+# Ignore IDE-specific files (e.g., Visual Studio Code)
+.vscode/
+.vs/
