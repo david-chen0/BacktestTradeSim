@@ -1,9 +1,8 @@
 # BacktestTradeSim
 Personal project for backtesting framework for my trading ideas. Still WIP
 
-## Plan
-### Implementation
-#### Transaction Class
+## Implementation
+### Transaction Class
 Represents a transaction.
 
 Variables:
@@ -15,12 +14,13 @@ Variables:
 * strikePrice: Strike price(only if we are doing options)
 * 
 
-#### Strategy Class
+### Strategy Class
 Represents a trading strategy
 
 Variables:
 * securities: A set of all securities that were touched, even if their positions were closed
 * position: Some way to track all positions acquired and closed(ex: hashmap from security name to list of transactions ordered by time the transaction was made)
+  * This will require some good memory management and optimization, make it work first then make it good
 * balance: The total net worth of the account(might not need this variable, since I'm thinking instead we have a method that calculates balance at a given timestamp)
 * liquidBalance: The liquid cash that's available
 
@@ -29,16 +29,37 @@ Methods:
 * currentPosition: Outputs current position(does not include closed positions)
 * listTransactions: Lists all the transactions we've taken for the security(s) provided
 
-### Data
+### DataFetcher Class
+Fetches the data from our data source
+
+Variables:
+* apiKey: This will likely either be one of the inputs of the program or be required to be hardcoded into a file. Make sure to add it to .gitignore if we do hardcode it
+
+Methods:
+* loadData: Loads the data for the input security, time(window), and securityType
+
+### Main functionality
+This will be the main file that will be called and route the utility calls
+
+Variables:
+* strategy: This will be the strategy that is used
+
+Methods:
+* chooseTimeframe: Allows the user to pick their timeframe to run the test over
+* runBacktest: Runs the backtest itself
+* loadData: This will likely be a helper method called in `runBacktest` to get the needed data and polish it
+* applyStrategy: This will assign the strategy that we want to use. Can maybe be in the `init` rather than as a separate method
+
+## Data
 Find an open source Yahoo Finance C++ library. Choosing this because Yahoo finance libraries will give good historical data but not real-time data, which we don't need. Also since there wouldn't be any throttling.
 
-### Graphing
+## Graphing
 C++ Backend: Processes data, exports results to JSON.
 Web Front-End: Fetches JSON data, visualizes it using React framework and libraries like Chart.js.
 Server: Serve static files or use a dynamic API to deliver data. Can likely skip this step since the user will be the server.
 Deployment: Host your application on Github Pages.
 
-### Testing
+## Testing
 Make some unit tests for the methods
 
 Some easier integ tests(ex: can pick and choose a strategy such as dollar cost averaging for integ test)
