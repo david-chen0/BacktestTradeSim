@@ -7,10 +7,19 @@ set(CMAKE_CXX_STANDARD 17)
 # Add include directory
 include_directories(include)
 
-# Add executable
-# add_executable(BacktestTradeSim src/main.cpp src/backtester.cpp src/strategy.cpp)
+# Add executables
+add_executable(
+	BacktestTradeSim 
+	src/Main.cpp
+	src/Strategy.cpp
+	src/Transaction.cpp
+	src/data/DataFetcher.cpp
+)
 
 # Add tests
-# enable_testing()
-# add_executable(runTests tests/backtester_tests.cpp)
+enable_testing()
+add_executable(
+	runTests
+	tests/Temp.cpp
+)
 # add_test(NAME Test COMMAND runTests)

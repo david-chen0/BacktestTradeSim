@@ -17,17 +17,7 @@ Variables:
 ### Strategy Class
 Represents a trading strategy
 
-Variables:
-* securities: A set of all securities that were touched, even if their positions were closed
-* position: Some way to track all positions acquired and closed(ex: hashmap from security name to list of transactions ordered by time the transaction was made)
-  * This will require some good memory management and optimization, make it work first then make it good
-* balance: The total net worth of the account(might not need this variable, since I'm thinking instead we have a method that calculates balance at a given timestamp)
-* liquidBalance: The liquid cash that's available
-
-Methods:
-* processData: Takes in a data point and outputs an action(long, short, etc). Note that this will likely need to be extended to process multiple data points(ex: from different stocks) to account for some strategies(ex: pairs trading)
-* currentPosition: Outputs current position(does not include closed positions)
-* listTransactions: Lists all the transactions we've taken for the security(s) provided
+Ideas and logic moved to Strategy.hpp
 
 ### DataFetcher Class
 Fetches the data from our data source
