@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-// Declare the Strategy class
 /*
 * The Strategy class is meant to be the base class that all investment strategies inherit.
 * 
@@ -20,23 +19,6 @@ public:
 
     // Pure virtual function (making this class abstract)
     virtual void execute() = 0;
-
-    // The methods below are examples for how we could access the securities set
-    // Function to add a security to the set
-    void addSecurity(const std::string& security) {
-        securities.insert(security);
-    }
-
-    // Function to remove a security from the set
-    void removeSecurity(const std::string& security) {
-        securities.erase(security);
-    }
-
-    // Function to check if a security is in the set
-    bool hasSecurity(const std::string& security) const {
-        return securities.find(security) != securities.end();
-    }
-    // end of securities functions
 
     /*
     * Takes in a data point and outputs an action(long, short, etc).
@@ -78,4 +60,4 @@ protected:
     int liquidBalance;
 };
 
-#endif // STRATEGY_H
+#endif
