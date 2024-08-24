@@ -26,7 +26,7 @@ public:
     * 
     * Note that this will likely need to be extended to process multiple data points(ex: from different stocks) to account for some strategies(ex: pairs trading)
     */
-    virtual void processData() = 0;
+    virtual void executeStrategy() = 0;
 
     /*
     * 
