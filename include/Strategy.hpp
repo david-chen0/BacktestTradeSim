@@ -1,6 +1,8 @@
 #ifndef STRATEGY_HPP
 #define STRATEGY_HPP
 
+#include "Portfolio.hpp"
+
 #include <set>
 #include <string>
 #include <vector>
@@ -44,8 +46,8 @@ protected:
     // Protected constructor to prevent instantiation of the base class
     Strategy() {}
 
-    // Set to store all the securities that were traded, even if their positions were closed
-    std::set<std::string> securities;
+    // The portfolio storing all the securities that were traded, even if their positions were closed
+    Portfolio portfolio;
 
     /*
     * Need some way to track all positions acquired and closed(ex: hashmap from security name to list of transactions ordered by time the transaction was made)

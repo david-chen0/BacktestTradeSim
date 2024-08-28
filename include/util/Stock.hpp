@@ -1,7 +1,9 @@
 #ifndef STOCK_HPP
 #define STOCK_HPP
 
-#include Security.hpp
+#include "Security.hpp"
+
+#include <string>
 
 /*
 * Stock class inherits the Security class.

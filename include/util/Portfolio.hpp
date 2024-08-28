@@ -1,6 +1,10 @@
 #ifndef PORTFOLIO_HPP
 #define PORTFOLIO_HPP
 
+#include "Security.hpp"
+
+#include <map>
+
 /*
 * The Portfolio class is meant to represent an individual portfolio, which contains information about
 * the securities the portfolio holds, the transactions executed in the portfolio, the balance of the
@@ -14,22 +18,22 @@ public:
 	// Destructor
 	~Portfolio();
 
-    // Method to add a security to the set
-    void addSecurity(const std::string& security) {
-        securities.insert(security);
-    }
+    // Checks whether our portfolio holds a position in the security provided
+    // Returns false if the security is not in the positions map or if there are no shares found for that security, true otherwise
+    bool hasPosition(const Security& security);
 
-    // Method to remove a security from the set
-    void removeSecurity(const std::string& security) {
-        securities.erase(security);
-    }
+    // Adds a position to our portfolio
+    void addPosition(const Security& security, int numShares);
 
-    // Method to check if a security is in the set
-    bool hasSecurity(const std::string& security) const {
-        return securities.find(security) != securities.end();
-    }
+    // Removes a position from our portfolio
+    void removePosition(const Security& security);
+
+    // Returns the number of shares of the security
+    int getPositionSize(const Security& security);
 
 
+private:
+    std::map<Security, int> positions; // Maps from security to number of shares for that security, where a negative number indicates a short positon
 };
 
 #endif

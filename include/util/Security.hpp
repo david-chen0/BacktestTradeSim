@@ -1,8 +1,8 @@
 #ifndef SECURITY_HPP
 #define SECURITY_HPP
 
-#include Stock.hpp
-#include Option.hpp
+#include "Stock.hpp"
+#include "Option.hpp"
 
 #include <ctime>
 #include <format>
@@ -44,11 +44,9 @@ class Security {
 public:
     Security(
         SecurityType type,
-        int numShares,
         const std::string& identifier,
         double price
     ): type(type),
-        direction(direction),
         identifier(identifier),
         price(price)
     {}
@@ -56,10 +54,9 @@ public:
     virtual ~Security() {}
 
     virtual void displayInfo() const {
-        std::cout << std::format("Security type: {}, identifier: {}, investment side: {}, current price: {}.\n",
+        std::cout << std::format("Security type: {}, identifier: {}, current price: {}.\n",
             typeToString(type),
             identifier,
-            getSide(numShares),
             price
         );
     }
@@ -67,26 +64,6 @@ public:
     // Methods for SecurityType
     SecurityType getType() const {
         return type;
-    }
-
-    // Methods for numShares
-    int getNumShares() const {
-        return numShares;
-    }
-    void setNumShares(int newNumShares) {
-        numShares = newNumShares;
-    }
-    void addShares(int newShares) {
-        numShares += newShares;
-    }
-    std::string getSide() const {
-        if (numShares > 0) {
-            return "Long"
-        } else if (numShares < 0) {
-            return "Short"
-        } else {
-            return "None"
-        }
     }
 
     // Methods for identifier
@@ -105,7 +82,6 @@ public:
 
 protected:
     SecurityType type;
-    int numShares;
     std::string identifier;
     double price;
 };

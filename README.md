@@ -9,11 +9,6 @@ Variables:
 * security: The security that was traded
 * cost: The cost to acquire this security
 * date: The day this security was acquired(Can also think about swapping this for `timestamp` represented with an epoch number)
-* securityType: The type of security that was traded(stock, option, future, bond, swap. Will likely limit to stock for now)
-* direction: The direction of the security(long or short)
-* strikePrice: Strike price(only if we are doing options)
-* 
-
 ### Strategy Class
 Represents a trading strategy
 
