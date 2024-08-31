@@ -12,6 +12,7 @@ BacktestTradeSim
 /build/
 /bin/
 /out/
+CMakeFiles/
 
 # Ignore system files
 .DS_Store

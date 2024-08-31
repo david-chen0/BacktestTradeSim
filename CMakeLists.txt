@@ -1,25 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(BacktestTradeSim)
+project(BacktestTradeSim VERSION 1.0)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Specify the output directory for the compiled binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Find the required packages
 find_package(CURL REQUIRED)
 
 # Add include directory
-include_directories(include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CURL_INCLUDE_DIRS})
+
+# Recursively find all .cpp files in the src directory and its subdirectories
+file(GLOB_RECURSE SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/*.cpp
+)
 
 # Add executables
 add_executable(
 	BacktestTradeSim 
-	src/Main.cpp
-	src/Strategy.cpp
-	src/Transaction.cpp
-	src/data/DataFetcher.cpp
+	${SOURCE_FILES}
 )
 
 # Add tests
