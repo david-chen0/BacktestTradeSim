@@ -10,7 +10,7 @@
 * 
 * [security]: The security in the transaction
 * [price]: The price of the transaction
-* [time]: The time of the transaction, represented as an epoch
+* [time]: The time of the transaction, represented as an epoch string
 * [numShares]: The number of shares of this transaction, where a negative number represents a sale
 */
 class Transaction {
@@ -19,7 +19,7 @@ public:
 		const Security& security,
 		double price,
 		const std::string time,
-		int numShares,
+		int numShares
 	)
 };
 

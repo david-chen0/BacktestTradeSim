@@ -1,4 +1,6 @@
 #include "DataFetcher.hpp"
+#include "Security.hpp"
+#include "SecurityData.hpp"
 
 #include <ctime>
 #include <curl/curl.h>
@@ -70,20 +72,79 @@ std::string DataFetcher::performRequest(const std::string& url) {
     return readBuffer;
 }
 
-// Method to fetch data for a list of Security objects
-void DataFetcher::fetchData(const std::vector<Security>& securities, const std::string& date) {
-    std::map<Security, std::string>
+/*
+* For the given vector of securities, returns the info for those securities on the input date
+* 
+* [securities]: The securities to processs
+* [date]: The date on which to provide info for
+* 
+* @returns Map from the reference of Security to the SecurityData for the day
+*/
+std::map<const Security&, SecurityData> DataFetcher::fetchData(const std::vector<Security>& securities, const std::string& date) {
+    std::map<const Security&, SecurityData> securityDataMap;
 
     std::string currentDay = toMarketOpenString(date);
     std::string nextDay = addDayToEpoch(currentDay);
     for (const auto& security : securities) {
         std::string url = buildURL(security, currentDay, nextDay);
         std::string data = performRequest(url);
+        SecurityData securityData = mapToSecurityData(data);
+        securityDataMap[security] = securityData;
     }
-    // idea is to return a map from security to the info for the day
-    // want to change this method to only accept a single date, compute the end of that day, and then 
+    
+    return securityDataMap;
 }
 
+/*
+* Transforms the received data into a SecurityData format
+* 
+* [csvData]: The received CSV data from the cURL request
+* 
+* @returns: SecurityData object representing the data from the cURL request
+*/
+SecurityData mapToSecurityData(std::string csvData) {
+    SecurityData securityData;
+    std::istringstream stream(csvData);
+    std::string line;
+
+    // Skip the first line (header)
+    std::getline(stream, line);
+
+    // Process each line of the CSV data
+    while (std::getline(stream, line)) {
+        std::istringstream lineStream(line);
+        std::string date, openStr, highStr, lowStr, closeStr, adjCloseStr, volumeStr;
+
+        // Parse each field
+        std::getline(lineStream, date, ',');
+        std::getline(lineStream, openStr, ',');
+        std::getline(lineStream, highStr, ',');
+        std::getline(lineStream, lowStr, ',');
+        std::getline(lineStream, closeStr, ',');
+        std::getline(lineStream, adjCloseStr, ',');
+        std::getline(lineStream, volumeStr, ',');
+
+        // Convert strings to appropriate types
+        double open = std::stod(openStr);
+        double high = std::stod(highStr);
+        double low = std::stod(lowStr);
+        double close = std::stod(closeStr);
+        double adjClose = std::stod(adjCloseStr);
+        long volume = std::stol(volumeStr);
+
+        // Create SecurityData object
+        SecurityData securityData(date, open, close, adjClose, volume);
+
+        // Set the high and low since they are optional fields
+        securityData.setHigh(high);
+        securityData.setLow(low);
+
+        return securityData;
+    }
+}
+
+
+// Given an input epoch time, returns the epoch for that day's market open time
 std::string toMarketOpenString(const std::string& inputEpochStr) {
     // Convert the input string to std::time_t (epoch time)
     std::time_t inputEpoch = std::stoll(inputEpochStr);
