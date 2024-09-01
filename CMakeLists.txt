@@ -7,6 +7,10 @@ project(BacktestTradeSim VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Temporary set of CMake directory
+set(CURL_LIBRARY "D:/curl/lib/libcurl.a")
+set(CURL_INCLUDE_DIR "D:/curl/include")
+
 # Specify the output directory for the compiled binaries
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -29,12 +33,12 @@ add_executable(
 )
 
 # Add tests
-enable_testing()
-add_executable(
-	runTests
-	tests/Temp.cpp
-)
+#enable_testing()
+#add_executable(
+#	BacktestTradeSimTests
+#	tests/Temp.cpp
+#)
 # add_test(NAME Test COMMAND runTests)
 
 # Link required libraries
-target_link_libraries(DataFetcher ${CURL_LIBRARIES})
+target_link_libraries(BacktestTradeSim ${CURL_LIBRARIES})
