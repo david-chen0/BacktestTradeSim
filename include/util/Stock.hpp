@@ -15,8 +15,8 @@ class Stock : public Security {
 public:
     Stock(
         const std::string& identifier,
-        SecurityDirection direction,
         double currentPrice
-    ): Security(SecurityType::Stock, direction, identifier, currentPrice) {}
+    ) : Security(SecurityType::Stock, identifier, currentPrice) {}
+};
 
 #endif

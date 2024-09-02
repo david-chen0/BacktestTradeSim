@@ -1,4 +1,4 @@
-#include "Portfolio.hpp"
+#include "../include/util/Portfolio.hpp"
 
 #include <format>
 #include <iostream>
@@ -6,23 +6,24 @@
 #include <stdexcept>
 #include <string>
 
-bool hasPosition(const Security& security) {
+bool Portfolio::hasPosition(const Security& security) {
     try {
         return getPositionSize(security) != 0;
-    } catch { // Catches the runtime error that's thrown if the security is not in the portfolio
+    }
+    catch (std::runtime_error) { // Catches the runtime error that's thrown if the security is not in the portfolio
         return false;
     }
 }
 
-void addPosition(const Security& security, int numShares) {
+void Portfolio::addPosition(const Security& security, int numShares) {
     positions[security] = numShares;
 }
 
-void removePosition(const Security& security) {
+void Portfolio::removePosition(const Security& security) {
     positions.erase(security);
 }
 
-int getPositionSize(const Security& security) {
+int Portfolio::getPositionSize(const Security& security) {
     auto it = positions.find(security);
 
     // Checks if the security was found

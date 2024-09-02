@@ -46,7 +46,6 @@ public:
     // Other methods
     static std::string addDayToEpoch(const std::string& date); // Adds a day to the input epoch and returns the resulting epoch as a string
     static std::string dateToEpoch(const std::string& date); // Converts a date(MM/DD/YYYY) to an epoch string
-};
 
 private:
     std::string date;
@@ -56,5 +55,6 @@ private:
     double close;
     double adjClose;
     long volume;
+};
 
 #endif

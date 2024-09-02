@@ -1,6 +1,6 @@
-#include "DataFetcher.hpp"
-#include "Security.hpp"
-#include "SecurityData.hpp"
+#include "../include/data/DataFetcher.hpp"
+#include "../include/util/Security.hpp"
+#include "../include/data/SecurityData.hpp"
 
 #include <ctime>
 #include <curl/curl.h>
@@ -80,11 +80,11 @@ std::string DataFetcher::performRequest(const std::string& url) {
 * 
 * @returns Map from the reference of Security to the SecurityData for the day
 */
-std::map<const Security&, SecurityData> DataFetcher::fetchData(const std::vector<Security>& securities, const std::string& date) {
+std::map<const Security&, SecurityData> DataFetcher::fetchData(const std::vector<Security&> securities, const std::string& date) {
     std::map<const Security&, SecurityData> securityDataMap;
 
     std::string currentDay = toMarketOpenString(date);
-    std::string nextDay = addDayToEpoch(currentDay);
+    std::string nextDay = SecurityData::addDayToEpoch(currentDay);
     for (const auto& security : securities) {
         std::string url = buildURL(security, currentDay, nextDay);
         std::string data = performRequest(url);
@@ -102,8 +102,7 @@ std::map<const Security&, SecurityData> DataFetcher::fetchData(const std::vector
 * 
 * @returns: SecurityData object representing the data from the cURL request
 */
-SecurityData mapToSecurityData(std::string csvData) {
-    SecurityData securityData;
+SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
     std::istringstream stream(csvData);
     std::string line;
 
@@ -145,7 +144,7 @@ SecurityData mapToSecurityData(std::string csvData) {
 
 
 // Given an input epoch time, returns the epoch for that day's market open time
-std::string toMarketOpenString(const std::string& inputEpochStr) {
+std::string DataFetcher::toMarketOpenString(const std::string& inputEpochStr) {
     // Convert the input string to std::time_t (epoch time)
     std::time_t inputEpoch = std::stoll(inputEpochStr);
 

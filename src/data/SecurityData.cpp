@@ -1,4 +1,4 @@
-#include "SecurityData.hpp"
+#include "../include/data/SecurityData.hpp"
 
 #include <ctime>
 #include <iomanip>
@@ -7,7 +7,7 @@
 #include <string>
 
 // Adds a day to the input epoch and returns the resulting epoch as a string
-static SecurityData::std::string addDayToEpoch(const std::string& date) {
+std::string SecurityData::addDayToEpoch(const std::string& date) {
     // Convert the input string to time_t (epoch time in seconds)
     time_t epochTime = std::stol(date);
 
@@ -21,7 +21,7 @@ static SecurityData::std::string addDayToEpoch(const std::string& date) {
 }
 
 // Converts date string(format MM/DD/YYYY) to an epoch string
-static SecurityData::std::string dateToEpoch(const std::string& date) {
+std::string SecurityData::dateToEpoch(const std::string& date) {
     // Parse the date string (expected format: MM/DD/YYYY)
     std::tm tm = {};
     std::istringstream ss(date);
