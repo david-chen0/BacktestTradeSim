@@ -50,6 +50,7 @@ public:
 
     virtual ~Security() {}
 
+    // Prints the info for the security
     virtual void displayInfo() const {
         std::cout << std::format("Security type: {}, identifier: {}, current price: {}.\n",
             typeToString(type),
@@ -58,22 +59,21 @@ public:
         );
     }
 
-    // Methods for SecurityType
-    SecurityType getType() const {
-        return type;
-    }
+    // Gets the security type
+    SecurityType getType() const;
 
-    // Methods for identifier
-    std::string getIdentifier() const {
-        return identifier;
-    }
+    // Gets the security identifier
+    std::string getIdentifier() const;
 
-    // Methods for price
-    double getCurrentPrice() const {
-        return price;
-    }
-    void setCurrentPrice(double newPrice) {
-        price = newPrice;
+    // Gets the security's current price
+    double getCurrentPrice() const;
+
+    // Sets the security's current price
+    void setCurrentPrice(double newPrice);
+
+    // Defines how two Security objects should be compared, which is used for sets, maps, and more
+    bool operator<(const Security& other) const {
+        return this->identifier < other.identifier;
     }
 
 

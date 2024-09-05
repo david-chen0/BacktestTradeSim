@@ -11,7 +11,7 @@
 class DataFetcher {
 public:
     DataFetcher();
-    std::map<const Security&, SecurityData> fetchData(const std::vector<Security&> securities, const std::string& date);
+    std::map<Security, SecurityData> fetchData(const std::vector<Security> securities, const std::string& date);
 
 private:
     std::string buildURL(const Security& security, const std::string& startDate, const std::string& endDate);

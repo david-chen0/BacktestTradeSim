@@ -80,16 +80,16 @@ std::string DataFetcher::performRequest(const std::string& url) {
 * 
 * @returns Map from the reference of Security to the SecurityData for the day
 */
-std::map<const Security&, SecurityData> DataFetcher::fetchData(const std::vector<Security&> securities, const std::string& date) {
-    std::map<const Security&, SecurityData> securityDataMap;
+std::map<Security, SecurityData> DataFetcher::fetchData(const std::vector<Security> securities, const std::string& date) {
+    std::map<Security, SecurityData> securityDataMap;
 
     std::string currentDay = toMarketOpenString(date);
     std::string nextDay = SecurityData::addDayToEpoch(currentDay);
-    for (const auto& security : securities) {
+    for (auto& security : securities) {
         std::string url = buildURL(security, currentDay, nextDay);
         std::string data = performRequest(url);
         SecurityData securityData = mapToSecurityData(data);
-        securityDataMap[security] = securityData;
+        securityDataMap.insert({ security, securityData });
     }
     
     return securityDataMap;
@@ -149,7 +149,13 @@ std::string DataFetcher::toMarketOpenString(const std::string& inputEpochStr) {
     std::time_t inputEpoch = std::stoll(inputEpochStr);
 
     // Convert epoch to tm structure in UTC
-    std::tm* timeInfo = std::gmtime(&inputEpoch);
+    // gmtime_s is used rather than gmtime since gmtime_s is thread-safe and does not have race conditions
+    std::tm timeStruct;
+    std::tm* timeInfo = &timeStruct;
+    errno_t err = gmtime_s(timeInfo, &inputEpoch);
+    if (err != 0) {
+        std::cerr << "Error converting inputEpoch with gmtime_s." << std::endl;
+    }
 
     // Set the time to 9:30 AM EST
     timeInfo->tm_hour = 9 + 5;  // Convert 9:30 AM EST to 9:30 AM UTC
@@ -163,7 +169,12 @@ std::string DataFetcher::toMarketOpenString(const std::string& inputEpochStr) {
     marketOpenEpoch -= 5 * 3600;
 
     // Convert the epoch to a string
-    std::tm* marketOpenTm = std::gmtime(&marketOpenEpoch);
+    std::tm marketOpenTmStruct;
+    std::tm* marketOpenTm = &marketOpenTmStruct;
+    err = gmtime_s(marketOpenTm, &marketOpenEpoch);
+    if (err != 0) {
+        std::cerr << "Error converting result with gmtime_s." << std::endl;
+    }
     std::ostringstream oss;
     oss << std::put_time(marketOpenTm, "%Y-%m-%d %H:%M:%S");
 

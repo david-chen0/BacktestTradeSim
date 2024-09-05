@@ -24,7 +24,12 @@ public:
         double close,
         double adjClose,
         long volume
-    );
+    ) : date(date),
+        open(open),
+        close(close),
+        adjClose(adjClose),
+        volume(volume)
+    {}
 
     // Setters for optional fields
     void setHigh(double h) { high = h; }
