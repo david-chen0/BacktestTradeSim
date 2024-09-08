@@ -11,76 +11,75 @@
 // Currently only supporting stocks, options, and ETFs
 // Other classes for future implementation: Futures, Bonds, Swaps, etc
 enum class SecurityType {
-    ETF,
-    Option,
-    Stock
+	ETF,
+	Option,
+	Stock
 };
 // Function to convert SecurityType to string
 inline std::string typeToString(SecurityType type) {
-    switch (type) {
-        case SecurityType::Stock: return "Stock";
-        case SecurityType::Option: return "Option";
-        case SecurityType::ETF: return "ETF";
-        default:
-            std::ostringstream oss;
-            oss << "Unsupported SecurityType: " << static_cast<int>(type);
-            throw std::invalid_argument(oss.str());
-    }
+	switch (type) {
+	case SecurityType::Stock: return "Stock";
+	case SecurityType::Option: return "Option";
+	case SecurityType::ETF: return "ETF";
+	default:
+		std::ostringstream oss;
+		oss << "Unsupported SecurityType: " << static_cast<int>(type);
+		throw std::invalid_argument(oss.str());
+	}
 }
 
 
 /*
 * Security is the base class for all securities, such as stocks, options, ETFs, and more.
-* 
+*
 * [type]: The SecurityType that this security represents.
-* [numShares]: The number of shares that the portfolio has of this security. A negative number indicates a short position.
 * [identifier]: Reference to string of the security identifier(ex: AAPL ticker for stocks). The reference is used for memory and performance sake and const is used to ensure the value is never changed.
 * [currentPrice]: The double representing the current price of the stock.
 */
 class Security {
 public:
-    Security(
-        SecurityType type,
-        const std::string& identifier,
-        double price
-    ): type(type),
-        identifier(identifier),
-        price(price)
-    {}
+	Security(
+		SecurityType type,
+		const std::string& identifier,
+		double price
+	) : type(type),
+		identifier(identifier),
+		price(price)
+	{}
 
-    virtual ~Security() {}
+	virtual ~Security() {}
 
-    // Prints the info for the security
-    virtual void displayInfo() const {
-        std::cout << std::format("Security type: {}, identifier: {}, current price: {}.\n",
-            typeToString(type),
-            identifier,
-            price
-        );
-    }
+	// Prints the info for the security
+	virtual void displayInfo() const {
+		std::cout << std::format("Security type: {}, identifier: {}, current price: {}.\n",
+			typeToString(type),
+			identifier,
+			price
+		);
+	}
 
-    // Gets the security type
-    SecurityType getType() const;
+	// Gets the security type
+	SecurityType getType() const;
 
-    // Gets the security identifier
-    std::string getIdentifier() const;
+	// Gets the security identifier
+	std::string getIdentifier() const;
 
-    // Gets the security's current price
-    double getCurrentPrice() const;
+	// Gets the security's current price
+	double getCurrentPrice() const;
 
-    // Sets the security's current price
-    void setCurrentPrice(double newPrice);
+	// Sets the security's current price
+	void setCurrentPrice(double newPrice);
 
-    // Defines how two Security objects should be compared, which is used for sets, maps, and more
-    bool operator<(const Security& other) const {
-        return this->identifier < other.identifier;
-    }
+	// Defines how two Security objects should be compared, which is used for sets, maps, and more
+	bool operator<(const Security& other) const {
+		return this->identifier < other.identifier;
+	}
 
 
 protected:
-    SecurityType type;
-    std::string identifier;
-    double price;
+	SecurityType type;
+	std::string identifier;
+	double price;
 };
 
 #endif
