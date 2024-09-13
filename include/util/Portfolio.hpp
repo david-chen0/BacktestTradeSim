@@ -14,6 +14,9 @@
 */
 class Portfolio {
 public:
+	// Default constructor
+	Portfolio() : balance(0) {}
+
 	// Constructor
 	Portfolio(
 		int balance

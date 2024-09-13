@@ -38,11 +38,9 @@ protected:
 	) : totalBalanceInput(startingBalance),
 		startDate(startDate),
 		endDate(endDate),
+		portfolio(Portfolio(startingBalance)),
 		securities(securities)
 	{}
-
-	// The portfolio storing all the securities that were traded, even if their positions were closed
-	Portfolio portfolio;
 
 	// The total amount of money added to the portfolio, where deposits are positive and withdrawals are negative
 	int totalBalanceInput;
@@ -52,6 +50,9 @@ protected:
 
 	// The ending date of the strategy, represented as an epoch string
 	std::string endDate;
+
+	// The portfolio storing all the securities that were traded, even if their positions were closed
+	Portfolio portfolio;
 
 	// Lists the securities that are to be considered
 	std::set<Security> securities;
