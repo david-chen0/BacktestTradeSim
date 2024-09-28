@@ -23,12 +23,16 @@ public:
 		int timeInterval
 	) : Strategy(income, startDate, endDate, securities),
 		income(income),
-		timeInterval(timeInterval)
+		timeInterval(timeInterval),
+		latestTimeProcessed("0")
 	{}
+
+	virtual void processDataPoint() = 0;
 
 private:
 	int income;
 	int timeInterval;
+	std::string latestTimeProcessed;
 };
 
 #endif

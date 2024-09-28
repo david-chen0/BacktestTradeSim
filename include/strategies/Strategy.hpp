@@ -4,6 +4,8 @@
 #include "../util/Portfolio.hpp"
 #include "../util/Security.hpp"
 
+#include <ctime>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -27,9 +29,19 @@ public:
 	// Implemented as a pure virtual method to force inheriting classes to override this method.
 	virtual void processDataPoint() = 0;
 
+	// Converts a string representing epoch time to a time_t object
+	static time_t stringToTime(const std::string& epochString);
+
+	// Increments by 1 day, skipping weekends if needed, to return the next business day. Does not consider holidays/closed market days.
+	static std::string nextBusinessDay(const std::string& epochString);
+
+	// Given two epoch strings, finds the difference epochStr2 - epochStr1 and returns it as an int
+	static int calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2);
+
 
 protected:
 	// Protected constructor to prevent instantiation of the base class
+	// NEED TO MAKE A BROKER CLASS USING THE GIVEN PORTFOLIO
 	Strategy(
 		int startingBalance,
 		std::string startDate,
@@ -38,6 +50,7 @@ protected:
 	) : totalBalanceInput(startingBalance),
 		startDate(startDate),
 		endDate(endDate),
+		currentDate(startDate),
 		portfolio(Portfolio(startingBalance)),
 		securities(securities)
 	{}
@@ -51,10 +64,13 @@ protected:
 	// The ending date of the strategy, represented as an epoch string
 	std::string endDate;
 
+	// The current date of the strategy, represented as an epoch string. This will start as startDate
+	std::string currentDate;
+
 	// The portfolio storing all the securities that were traded, even if their positions were closed
 	Portfolio portfolio;
 
-	// Lists the securities that are to be considered
+	// List of securities that are to be considered
 	std::set<Security> securities;
 };
 

@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <string>
 
 // Method to build the URL for a given Security's cURL request
 /*
@@ -73,15 +72,17 @@ std::string DataFetcher::performRequest(const std::string& url) {
 }
 
 /*
-* For the given vector of securities, returns the info for those securities on the input date
+* For the given set of securities, returns the info for those securities on the input date
 * 
 * [securities]: The securities to processs
 * [date]: The date on which to provide info for
 * 
 * @returns Map from the reference of Security to the SecurityData for the day
 */
-std::map<Security, SecurityData> DataFetcher::fetchData(const std::vector<Security> securities, const std::string& date) {
+std::map<Security, SecurityData> DataFetcher::fetchData(const std::set<Security> securities, const std::string& date) {
     std::map<Security, SecurityData> securityDataMap;
+
+    // Figure out what happens when we try to fetch data on days where the market is not open
 
     std::string currentDay = toMarketOpenString(date);
     std::string nextDay = SecurityData::addDayToEpoch(currentDay);
