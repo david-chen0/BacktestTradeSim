@@ -11,28 +11,29 @@
 * [startDate]: Inherited from Strategy
 * [endDate]: Inherited from Strategy
 * [securities]: Inherited from Strategy
-* [timeInterval]: The time between income/deposits
+* [timeIntervalInDays]: The time between income/deposits in number of days
 */
 class DollarCostAveraging : public Strategy {
 public:
 	DollarCostAveraging(
-		int income,
+		double startingBalance,
 		std::string startDate,
 		std::string endDate,
 		std::set<Security> securities,
+		double income,
 		int timeInterval
-	) : Strategy(income, startDate, endDate, securities),
+	) : Strategy(startingBalance, startDate, endDate, securities),
 		income(income),
-		timeInterval(timeInterval),
+		timeIntervalInDays(timeIntervalInDays),
 		latestTimeProcessed("0")
 	{}
 
-	virtual void processDataPoint() = 0;
-
 private:
-	int income;
-	int timeInterval;
+	double income;
+	int timeIntervalInDays;
 	std::string latestTimeProcessed;
+
+	void processDataPoint(const Security& security, const SecurityData& securityData, std::string strategyDate);
 };
 
 #endif

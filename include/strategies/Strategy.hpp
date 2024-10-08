@@ -1,6 +1,8 @@
 #ifndef STRATEGY_HPP
 #define STRATEGY_HPP
 
+#include "../data/SecurityData.hpp"
+#include "../util/Broker.hpp"
 #include "../util/Portfolio.hpp"
 #include "../util/Security.hpp"
 
@@ -25,9 +27,17 @@ public:
 	// Virtual destructor to ensure that the proper destructor(the inheritor's destructor) is called to prevent memory leaks
 	virtual ~Strategy() {}
 
-	// Takes in a data point and outputs an action(long, short, etc).
-	// Implemented as a pure virtual method to force inheriting classes to override this method.
-	virtual void processDataPoint() = 0;
+	// Retrieves the current date
+	std::string getCurrentDate() const;
+
+	// Gets the value of the strategy's portfolio
+	double getStrategyValue() const;
+
+	// Method to run the strategy by calling processDataPoint
+	void runStrategy();
+
+	// Updates the price of the passed in Security to the input price, which is normally the close price
+	void updateSecurityPrice(Security& security, double price);
 
 	// Converts a string representing epoch time to a time_t object
 	static time_t stringToTime(const std::string& epochString);
@@ -41,22 +51,18 @@ public:
 
 protected:
 	// Protected constructor to prevent instantiation of the base class
-	// NEED TO MAKE A BROKER CLASS USING THE GIVEN PORTFOLIO
 	Strategy(
-		int startingBalance,
+		double startingBalance,
 		std::string startDate,
 		std::string endDate,
 		std::set<Security> securities
-	) : totalBalanceInput(startingBalance),
-		startDate(startDate),
+	) : startDate(startDate),
 		endDate(endDate),
 		currentDate(startDate),
 		portfolio(Portfolio(startingBalance)),
+		broker(Broker(portfolio)),
 		securities(securities)
 	{}
-
-	// The total amount of money added to the portfolio, where deposits are positive and withdrawals are negative
-	int totalBalanceInput;
 
 	// The starting date of the strategy, represented as an epoch string
 	std::string startDate;
@@ -70,8 +76,15 @@ protected:
 	// The portfolio storing all the securities that were traded, even if their positions were closed
 	Portfolio portfolio;
 
-	// List of securities that are to be considered
+	// The Broker client used for executing trades
+	Broker broker;
+
+	// Set of securities that are to be considered
 	std::set<Security> securities;
+
+	// Takes in a data point and outputs an action(long, short, etc).
+	// Implemented as a pure virtual method to force inheriting classes to override this method.
+	virtual void processDataPoint(const Security& security, const SecurityData& securityData, std::string currentDate) = 0;
 };
 
 #endif

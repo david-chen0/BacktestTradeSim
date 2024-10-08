@@ -59,6 +59,8 @@ std::string DataFetcher::performRequest(const std::string& url) {
 
     curl = curl_easy_init();
     if (curl) {
+        std::cout << "cURLing at URL: " << url << std::endl;
+
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // Sets the URL string
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback); // Sets the callback function
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer); // Provides a pointer to be passed to the callback function
@@ -79,10 +81,11 @@ std::string DataFetcher::performRequest(const std::string& url) {
 * 
 * @returns Map from the reference of Security to the SecurityData for the day
 */
-std::map<Security, SecurityData> DataFetcher::fetchData(const std::set<Security> securities, const std::string& date) {
+std::map<Security, SecurityData> DataFetcher::fetchData(std::set<Security> securities, const std::string& date) {
     std::map<Security, SecurityData> securityDataMap;
 
     // Figure out what happens when we try to fetch data on days where the market is not open
+    std::cout << "Processing date: " << date << std::endl;
 
     std::string currentDay = toMarketOpenString(date);
     std::string nextDay = SecurityData::addDayToEpoch(currentDay);
@@ -110,8 +113,8 @@ SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
     // Skip the first line (header)
     std::getline(stream, line);
 
-    // Process each line of the CSV data
-    while (std::getline(stream, line)) {
+    // Process the first line of actual data
+    if (std::getline(stream, line)) {
         std::istringstream lineStream(line);
         std::string date, openStr, highStr, lowStr, closeStr, adjCloseStr, volumeStr;
 
@@ -139,8 +142,12 @@ SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
         securityData.setHigh(high);
         securityData.setLow(low);
 
+        // Return the first data line
         return securityData;
     }
+
+    // Handle case if no data lines are present
+    throw std::runtime_error("No data found in CSV");
 }
 
 

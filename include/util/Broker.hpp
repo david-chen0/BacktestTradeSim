@@ -6,6 +6,7 @@
 #include "./Transaction.hpp"
 #include "../data/SecurityData.hpp"
 
+#include <map>
 #include <string>
 
 /*
@@ -28,15 +29,20 @@ public:
 	* [security]: The security to execute the trade for
 	* [price]: The current price of the security
 	*/
-	static void executeTrade(
+	void executeTrade(
 		int numShares,
 		std::string timestamp,
 		const Security& security,
 		double price
-	)
+	);
+
+	void updateSecurityPrices(const Security& security, double newPrice);
+
+	double getSecurityPrice(const Security&) const;
 
 private:
 	Portfolio& portfolio;
+	std::map<Security, double> securityPrices;
 };
 
 #endif

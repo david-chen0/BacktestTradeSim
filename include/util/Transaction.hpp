@@ -16,19 +16,24 @@
 class Transaction {
 public:
 	Transaction(
-		Security& security,
+		const Security& security,
 		int numShares,
+		double price,
 		std::string timestamp
 	) : security(security),
 		numShares(numShares),
+		price(price),
 		timestamp(timestamp)
 	{}
 
+	int getNumShares() const;
+	double getPrice() const;
 	std::string getTimestamp() const;
 
 private:
-	Security& security;
+	const Security& security;
 	int numShares;
+	double price;
 	std::string timestamp;
 };
 

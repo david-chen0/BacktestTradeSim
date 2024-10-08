@@ -1,24 +1,33 @@
 #include "../../include/data/DataFetcher.hpp"
 #include "../../include/strategies/DollarCostAveraging.hpp"
 
-void DollarCostAveraging::processDataPoint() {
+#include <cmath>
+
+void DollarCostAveraging::processDataPoint(const Security& security, const SecurityData& securityData, std::string strategyDate) {
 	// Only continue if the time interval has passed and we have received our income
-	int timeDifference = Strategy::calculateEpochDifference(latestTimeProcessed, currentDate);
-	if (timeDifference < timeInterval) {
+	int timeDifference = Strategy::calculateEpochDifference(latestTimeProcessed, strategyDate);
+	if (timeDifference < timeIntervalInDays * 86400) {
 		return;
 	}
 
 	// Fetching the security data for the input day
 	std::map<Security, SecurityData> securityDataMap = DataFetcher::fetchData(securities, currentDate);
 
-	int spendingPower = income + totalBalanceInput;
+	// Calculating the total number of shares of each security we can buy, assuming an equal number of shares for each security
+	double spendingPower = income + portfolio.getBalance();
+	double totalSecurityCosts = 0.0;
+	for (const auto& [security, securityData] : securityDataMap) {
+		totalSecurityCosts += securityData.getOpen();
+	}
+	int sharesPerSecurity = static_cast<int>(std::floor(spendingPower / totalSecurityCosts));
 
-	// get the sum of the prices of all the securities in this strategy and figure out how much of each you can buy
-	// might want to balance s.t. each security gets the same amount of $
-
-	// Set the totalBalanceInput to the remaining balance
-	totalBalanceInput = spendingPower;
-
-	// Set currentDate to the next business day now that we've finished processing this day
-	currentDate = nextBusinessDay(currentDate);
+	// Executing the trades, which will automatically adjust our portfolio balance
+	for (const auto& [security, securityData] : securityDataMap) {
+		broker.executeTrade(
+			sharesPerSecurity,
+			currentDate,
+			security,
+			securityData.getOpen()
+		);
+	}
 }

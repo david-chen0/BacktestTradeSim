@@ -40,21 +40,18 @@ class Security {
 public:
 	Security(
 		SecurityType type,
-		const std::string& identifier,
-		double price
+		const std::string& identifier
 	) : type(type),
-		identifier(identifier),
-		price(price)
+		identifier(identifier)
 	{}
 
 	virtual ~Security() {}
 
 	// Prints the info for the security
 	virtual void displayInfo() const {
-		std::cout << std::format("Security type: {}, identifier: {}, current price: {}.\n",
+		std::cout << std::format("Security type: {}, identifier: {}.\n",
 			typeToString(type),
-			identifier,
-			price
+			identifier
 		);
 	}
 
@@ -63,12 +60,6 @@ public:
 
 	// Gets the security identifier
 	std::string getIdentifier() const;
-
-	// Gets the security's current price
-	double getCurrentPrice() const;
-
-	// Sets the security's current price
-	void setCurrentPrice(double newPrice);
 
 	// Defines how two Security objects should be compared, which is used for sets, maps, and more
 	bool operator<(const Security& other) const {

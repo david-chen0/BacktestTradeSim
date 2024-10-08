@@ -19,7 +19,7 @@ public:
 
 	// Constructor
 	Portfolio(
-		int balance
+		double balance
 	) : balance(balance) {}
 
 	// Destructor
@@ -44,15 +44,18 @@ public:
 	// Lists all transactions for the given security
 	std::set<Transaction, CompareTransaction> getTransactions(const Security& security) const;
 
+	// Gets the current portfolio balance
+	double getBalance() const;
+
 	// Adjusts the balance of the portfolio, where a negative input means to withdraw money
 	// If withdrawing leads to a negative balance, then an error will be thrown
-	void adjustBalance(int change);
+	void adjustBalance(double change);
 
 
 private:
 	std::map<Security, int> positions; // Maps from security to number of shares for that security, where a negative number indicates a short positon
 	std::map<Security, std::set<Transaction, CompareTransaction>> transactions; // Maps from security to the set of transactions for that security, which is automatically ordered by transaction timestamp
-	int balance; // Stores the amount of cash available in the account
+	double balance; // Stores the amount of cash available in the account
 };
 
 #endif

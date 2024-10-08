@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <string>
 
+Portfolio::~Portfolio() {}
+
 bool Portfolio::hasPosition(const Security& security) const {
 	try {
 		return getPositionSize(security) != 0;
@@ -53,8 +55,12 @@ std::set<Transaction, CompareTransaction> Portfolio::getTransactions(const Secur
 	throw std::runtime_error("Transactions for the specified security not found.");
 }
 
-void Portfolio::adjustBalance(int change) {
-	int newBalance = balance + change;
+double Portfolio::getBalance() const {
+	return balance;
+}
+
+void Portfolio::adjustBalance(double change) {
+	double newBalance = balance + change;
 	if (newBalance < 0) {
 		throw std::runtime_error("Can not withdraw more money than there exists in the account.");
 	}
