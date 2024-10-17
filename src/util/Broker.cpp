@@ -16,6 +16,7 @@ void Broker::executeTrade(
 	}
 
 	portfolio.adjustBalance(-1 * totalPrice);
+	portfolio.addPosition(security, numShares);
 
 	Transaction transaction(
 		security,

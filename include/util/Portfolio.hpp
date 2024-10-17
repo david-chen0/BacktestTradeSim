@@ -15,12 +15,16 @@
 class Portfolio {
 public:
 	// Default constructor
-	Portfolio() : balance(0) {}
+	Portfolio() : balance(0),
+		totalBalanceDeposited(0)
+	{}
 
 	// Constructor
 	Portfolio(
 		double balance
-	) : balance(balance) {}
+	) : balance(balance),
+		totalBalanceDeposited(balance)
+	{}
 
 	// Destructor
 	~Portfolio();
@@ -47,15 +51,20 @@ public:
 	// Gets the current portfolio balance
 	double getBalance() const;
 
+	// Gets the total deposited amount
+	double getTotalDeposited() const;
+
 	// Adjusts the balance of the portfolio, where a negative input means to withdraw money
 	// If withdrawing leads to a negative balance, then an error will be thrown
-	void adjustBalance(double change);
+	// If the call is not for a trade, then it will be assumed that the balance was changed with a manual withdraw/deposit
+	void adjustBalance(double change, bool isTrade = true);
 
 
 private:
 	std::map<Security, int> positions; // Maps from security to number of shares for that security, where a negative number indicates a short positon
 	std::map<Security, std::set<Transaction, CompareTransaction>> transactions; // Maps from security to the set of transactions for that security, which is automatically ordered by transaction timestamp
 	double balance; // Stores the amount of cash available in the account
+	double totalBalanceDeposited; // Stores the net amount of money deposited into the account(ex: depositing $10 5 times gives 50.0)
 };
 
 #endif

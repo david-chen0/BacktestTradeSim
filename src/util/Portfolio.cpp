@@ -19,7 +19,7 @@ bool Portfolio::hasPosition(const Security& security) const {
 }
 
 void Portfolio::addPosition(const Security& security, int numShares) {
-	positions[security] = numShares;
+	positions[security] += numShares;
 }
 
 void Portfolio::removePosition(const Security& security) {
@@ -59,10 +59,17 @@ double Portfolio::getBalance() const {
 	return balance;
 }
 
-void Portfolio::adjustBalance(double change) {
+double Portfolio::getTotalDeposited() const {
+	return totalBalanceDeposited;
+}
+
+void Portfolio::adjustBalance(double change, bool isTrade) {
 	double newBalance = balance + change;
 	if (newBalance < 0) {
 		throw std::runtime_error("Can not withdraw more money than there exists in the account.");
 	}
 	balance = newBalance;
+	if (!isTrade) {
+		totalBalanceDeposited += change;
+	}
 }

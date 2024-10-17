@@ -27,11 +27,11 @@ public:
 	// Virtual destructor to ensure that the proper destructor(the inheritor's destructor) is called to prevent memory leaks
 	virtual ~Strategy() {}
 
-	// Retrieves the current date
-	std::string getCurrentDate() const;
-
 	// Gets the value of the strategy's portfolio
 	double getStrategyValue() const;
+
+	// Prints some info about the strategy's performance
+	void evaluatePerformance() const;
 
 	// Method to run the strategy by calling processDataPoint
 	void runStrategy();
@@ -48,6 +48,9 @@ public:
 	// Given two epoch strings, finds the difference epochStr2 - epochStr1 and returns it as an int
 	static int calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2);
 
+	// Gets the maxQueryTime variable. Override this to set a maxQueryTime variable in a strategy.
+	virtual time_t getMaxQueryTime() const;
+
 
 protected:
 	// Protected constructor to prevent instantiation of the base class
@@ -57,8 +60,8 @@ protected:
 		std::string endDate,
 		std::set<Security> securities
 	) : startDate(startDate),
+		latestQueriedDate(startDate),
 		endDate(endDate),
-		currentDate(startDate),
 		portfolio(Portfolio(startingBalance)),
 		broker(Broker(portfolio)),
 		securities(securities)
@@ -70,9 +73,6 @@ protected:
 	// The ending date of the strategy, represented as an epoch string
 	std::string endDate;
 
-	// The current date of the strategy, represented as an epoch string. This will start as startDate
-	std::string currentDate;
-
 	// The portfolio storing all the securities that were traded, even if their positions were closed
 	Portfolio portfolio;
 
@@ -82,9 +82,22 @@ protected:
 	// Set of securities that are to be considered
 	std::set<Security> securities;
 
+	// Maximum amount of time difference from startDate to endDate we want in a scan
+	// The purpose of this is to set a limit on the amount of data we store in memory
+	// Consider making this public so that a strategy can override it
+	const time_t maxQueryTime = 31536000; // 1 year
+
+	// Latest date(as an epoch string) that we've queried for data
+	std::string latestQueriedDate;
+
+	// NEED TO CHANGE THIS TO PROCESS ALL SECURITIES TOGETHER, NOT JUST ONE SECURITY AT A TIME
+	// workflow: call processData, processData either looks for the strategy's currentDate or uses the first date in the jsons,
+	// then processes them all together
+	virtual void processData(std::map<Security, SecurityData> currentSecurityDataMap, const std::string& currentDate) = 0;
+
 	// Takes in a data point and outputs an action(long, short, etc).
 	// Implemented as a pure virtual method to force inheriting classes to override this method.
-	virtual void processDataPoint(const Security& security, const SecurityData& securityData, std::string currentDate) = 0;
+	//virtual void processData(const Security& security, const SecurityData& securityData, std::string currentDate) = 0;
 };
 
 #endif

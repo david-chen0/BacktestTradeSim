@@ -4,10 +4,14 @@
 
 #include <ctime>
 #include <curl/curl.h>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <regex>
 #include <sstream>
+
+using json = nlohmann::json;
 
 // Helper function to handle curl response
 /*
@@ -20,146 +24,268 @@
 *
 * @returns The number of bytes processed
 */
-static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-	((std::string*)userp)->append((char*)contents, size * nmemb);
-	return size * nmemb;
-}
+// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+//static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+//	((std::string*)userp)->append((char*)contents, size * nmemb);
+//	return size * nmemb;
+//}
 
-/*
-* Helper function for cURL to handle HTTP headers
-*
-* [contents]: Pointer to the raw header data received from the HTTP response
-* [size]: Size of each element in the header data block
-* [nmemb]: The number of elements/blocks in the data chunk, with the total size being size * nmemb
-* [userp]: Input pointer for where the data should be stored (in this case, it's being stored as a string)
-*
-* @returns The number of bytes processed
-*/
-static size_t headerCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-	((std::string*)userp)->append((char*)contents, size * nmemb);
-	return size * nmemb;
-}
+// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+//// Callback to handle headers and extract cookies
+//static size_t headerCallback(char* buffer, size_t size, size_t nitems, void* userdata) {
+//	std::string* cookies = static_cast<std::string*>(userdata);
+//	std::string header(buffer, size * nitems);
+//	if (header.find("Set-Cookie:") != std::string::npos) {
+//		// Extract the cookie value
+//		size_t start = header.find("Set-Cookie:") + 11;
+//		size_t end = header.find(";", start);
+//		if (end != std::string::npos) {
+//			cookies->append(header.substr(start, end - start));
+//			cookies->append("; ");
+//		}
+//	}
+//	return nitems * size;
+//}
 
-void DataFetcher::getCrumbAndCookie(std::string& crumb, std::string& cookie) {
-	CURL* curl;
-	CURLcode res;
-	std::string response;
-	std::string headers;
+// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+//void getCrumbAndCookie() {
+//	CURL* curl = curl_easy_init();
+//	if (!curl) {
+//		std::cerr << "Failed to initialize cURL" << std::endl;
+//		return;
+//	}
+//
+//	FILE* crumbfile = nullptr;
+//	errno_t err = fopen_s(&crumbfile, DataFetcher::crumbFile.c_str(), "wb");
+//	if (err != 0 || !crumbfile) {
+//		std::cerr << "Failed to open crumb file, error code: " << err << std::endl;
+//		curl_easy_cleanup(curl);
+//		return;
+//	}
+//	std::cerr << "Found crumb file" << std::endl;
+//
+//	//std::string url = "https://finance.yahoo.com/quote/AAPL/history?p=AAPL";
+//	std::string url = "https://query1.finance.yahoo.com/v8/finance/chart/AAPL";
+//	//std::string url = "https://query1.finance.yahoo.com/v1/test/getcrumb";
+//	//std::string url = "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?metrics=high?&interval=1d&range=5d";
+//	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+//	curl_easy_setopt(curl, CURLOPT_COOKIEJAR, DataFetcher::cookieFile.c_str());
+//	curl_easy_setopt(curl, CURLOPT_WRITEDATA, crumbfile);
+//	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+//	curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+//
+//	// delete these after debugging
+//	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
+//	//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+//
+//	std::cerr << "Starting cURL request to fetch cookie and crumb" << std::endl;
+//	CURLcode res = curl_easy_perform(curl);
+//	if (res != CURLE_OK) {
+//		std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
+//	} else {
+//		long response_code;
+//		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code); // Get HTTP response code
+//		std::cout << "Response code: " << response_code << std::endl;
+//		std::cout << "Data successfully written to file" << std::endl;
+//	}
+//
+//	// Clean up
+//	fclose(crumbfile);
+//	curl_easy_cleanup(curl);
+//}
 
-	curl = curl_easy_init();
-	if (curl) {
-		// URL to get the crumb (this URL works for Yahoo Finance crumb request)
-		curl_easy_setopt(curl, CURLOPT_URL, "https://query1.finance.yahoo.com/v1/test/getcrumb");
+// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+// Reads the crumb from the crumb file
+//std::string getCrumbFromFile() {
+//	std::ifstream crumbFileStream(DataFetcher::crumbFile.c_str());
+//	std::string crumb;
+//
+//	if (crumbFileStream.is_open()) {
+//		std::string line;
+//		while (getline(crumbFileStream, line)) {
+//			size_t pos = line.find("CrumbStore\":{\"crumb\":\"");
+//			if (pos != std::string::npos) {
+//				pos += 22;  // Offset to the start of the crumb
+//				size_t endPos = line.find("\"", pos);
+//				crumb = line.substr(pos, endPos - pos);
+//				break;
+//			}
+//		}
+//		crumbFileStream.close();
+//	}
+//	else {
+//		std::cerr << "Failed to read crumb file" << std::endl;
+//	}
+//
+//	return crumb;
+//}
 
-		// Set callback function to capture the response body (crumb)
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+// Use the cookie file in your main queries
+//void setCookieFile(CURL* curl) {
+//	curl_easy_setopt(curl, CURLOPT_COOKIEFILE, DataFetcher::cookieFile.c_str());  // Use cookies from file
+//}
 
-		// Set callback function to capture the response headers (cookies)
-		curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headerCallback);
-		curl_easy_setopt(curl, CURLOPT_HEADERDATA, &headers);
-
-		// Enable cookie handling
-		curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
-
-		// Perform the request
-		res = curl_easy_perform(curl);
-
-		if (res != CURLE_OK) {
-			std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
-		}
-
-		// Clean up
-		curl_easy_cleanup(curl);
-
-		// Extract the crumb from the response body
-		std::regex crumbRegex(R"([a-zA-Z0-9%]+)");
-		std::smatch match;
-		if (std::regex_search(response, match, crumbRegex)) {
-			crumb = match.str(0); // The first match should be the crumb
-		}
-
-		// Extract the cookie from the response headers
-		std::regex cookieRegex(R"(set-cookie: ([^;]+))", std::regex_constants::icase);
-		std::smatch cookieMatch;
-		if (std::regex_search(headers, cookieMatch, cookieRegex)) {
-			cookie = cookieMatch.str(1); // Capture the first cookie (usually the one you need)
-		}
-	}
-}
-
-std::string DataFetcher::buildURL(
+std::string buildURL(
 	const Security& security,
 	const std::string& startDate,
-	const std::string& endDate,
-	const std::string& crumb
+	const std::string& endDate
 ) {
-	std::string urlBase = "https://query1.finance.yahoo.com/v7/finance/download/" + security.getIdentifier();
-
-	switch (security.getType()) {
-	case SecurityType::Stock:
-		urlBase += "?period1=" + startDate + "&period2=" + endDate + "&interval=1d&events=history";
-		break;
-	default:
-		throw std::invalid_argument("Unsupported SecurityType for URL building.");
-		break;
-	}
-
-	urlBase += "&crumb=" + crumb;
-
-	return urlBase;
+	return "https://query1.finance.yahoo.com/v8/finance/chart/" + security.getIdentifier() +
+		"?period1=" + startDate + "&period2=" + endDate + "&interval=1d&events=history";
 }
 
-std::string DataFetcher::performRequest(const std::string& url, const std::string& cookie) {
+const std::string DataFetcher::getDataLocation(std::string identifier) {
+	return DataFetcher::fetchedDataFolder + "/" + identifier + ".txt";
+}
+
+void DataFetcher::performRequest(
+	const Security& security,
+	const std::string& startDate,
+	const std::string& endDate
+) {
+	//getCrumbAndCookie();
+
 	CURL* curl;
 	CURLcode res;
-	std::string readBuffer;
 
 	curl = curl_easy_init();
-	if (curl) {
-		std::cout << "cURLing at URL: " << url << std::endl;
 
-		curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // Sets the URL string
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback); // Sets the callback function
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer); // Provides a pointer to be passed to the callback function
+	// NOT NEEDED: Yahoo API V8 doesn't require crumbs and cookies
+	//setCookieFile(curl);
+	//std::string crumb = getCrumbFromFile();
 
-		// Setting the cookie using CURLOPT_COOKIE
-		std::string cookieHeader = "Cookie: " + cookie;
-		curl_easy_setopt(curl, CURLOPT_COOKIE, cookieHeader.c_str());
+	std::string url = buildURL(security, startDate, endDate);
 
-		res = curl_easy_perform(curl); // Performs the request
-		if (res != CURLE_OK) {
-			std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
+	if (!curl) {
+		throw std::runtime_error("Failed to initiate curl");
+	}
+
+	// Creating the file if it doesn't exist, then opening it to be written to
+	FILE* dataFile = nullptr;
+	std::string dataFileName = getDataLocation(security.getIdentifier());
+	errno_t err = fopen_s(&dataFile, dataFileName.c_str(), "wb");
+	std::cout << "Opening file for cURL to write to at " << dataFileName << std::endl;
+	if (err != 0 || !dataFile) {
+		throw std::runtime_error("Failed to open data file");
+		curl_easy_cleanup(curl);
+		return;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, dataFile);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+
+	std::cout << "cURLing at URL: " << url << std::endl;
+	res = curl_easy_perform(curl); // Performs the request
+	if (res != CURLE_OK) {
+		std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
+	}
+	std::cout << "Finished the cURL request for security " << security.getIdentifier() << std::endl;
+
+	fclose(dataFile);
+	curl_easy_cleanup(curl); // Frees the unused resources
+}
+
+bool stringNumberIsGreater(const std::string& num1, const std::string& num2) {
+	// Convert strings to integers
+	int number1 = std::stoi(num1);
+	int number2 = std::stoi(num2);
+
+	// Returns whether the first string is greater than second
+	return number1 > number2;
+}
+
+double convertJsonToDouble(json input) {
+	return std::stod((std::string) input);
+}
+
+std::map<Security, std::vector<SecurityData>> DataFetcher::fetchData(
+	std::set<Security> securities,
+	std::string& startDate,
+	std::string& endDate
+) {
+	std::string actualStartDate = endDate; // Represents the actual start date of all queries
+	std::string actualEndDate = startDate; // Represents the actual end date of all queries
+	std::map<Security, std::vector<SecurityData>> result;
+	for (const Security security : securities) {
+		std::string dataFileName = getDataLocation(security.getIdentifier());
+		performRequest(security, startDate, endDate);
+
+		// Open the file
+		std::cout << "Opening file " << dataFileName << std::endl;
+		std::ifstream file(dataFileName);
+
+		if (!file.is_open()) {
+			throw std::runtime_error("Could not open file: " + dataFileName);
 		}
-		curl_easy_cleanup(curl); // Frees the unused resources
+
+		json jsonResponse;
+		file >> jsonResponse;
+		file.close();
+		std::cout << "Finished reading from file " << dataFileName << std::endl;
+
+		json dataFields = jsonResponse["chart"]["result"][0];
+		json securityDataFields = dataFields["indicators"]["quote"][0];
+
+		json timestamps = dataFields["timestamp"];
+		json volumes = securityDataFields["volume"];
+		json opens = securityDataFields["open"];
+		json closes = securityDataFields["close"];
+		json lows = securityDataFields["low"];
+		json highs = securityDataFields["high"];
+
+		// Converting all the data into SecurityData objects
+		int numDates = dataFields["timestamp"].size();
+		std::vector<SecurityData> securityDataVector;
+		for (int i = 0; i < numDates; i++) {
+			securityDataVector.push_back(SecurityData(
+				std::to_string(timestamps[i].get<int>()),
+				opens[i].get<double>(),
+				closes[i].get<double>(),
+				highs[i].get<double>(),
+				lows[i].get<double>(),
+				volumes[i].get<long>()
+			));
+			std::cout << "Finished iteration " << i << " of creating the SecurityData objects." << std::endl;
+		}
+
+		std::string firstTimestamp = std::to_string(timestamps[0].get<int>());
+		// See the description of this method in the header for this
+		if (stringNumberIsGreater(actualStartDate, firstTimestamp)) {
+			actualStartDate = firstTimestamp;
+		}
+		std::string lastTimestamp = std::to_string(timestamps.back().get<int>());
+		if (stringNumberIsGreater(lastTimestamp, actualEndDate)) {
+			actualEndDate = lastTimestamp;
+		}
+
+		result.emplace(security, securityDataVector);
 	}
-	return readBuffer;
+
+	// Modifying the start and end date so the calling method would also have those values modified
+	startDate = actualStartDate;
+	endDate = actualEndDate;
+	return result;
 }
 
-std::map<Security, SecurityData> DataFetcher::fetchData(std::set<Security> securities, const std::string& date) {
-	std::map<Security, SecurityData> securityDataMap;
 
-	// Figure out what happens when we try to fetch data on days where the market is not open
-	std::cout << "Processing date: " << date << std::endl;
-
-	std::string cookie;
-	std::string crumb;
-	getCrumbAndCookie(cookie, crumb);
-	// remove these after debugging, currently cookie is giving "Too" and crumb is empty
-	std::cout << "Cookie: " << cookie << std::endl;
-	std::cout << "Crumb: " << crumb << std::endl;
-
-	std::string currentDay = toMarketOpenString(date);
-	std::string nextDay = SecurityData::addDayToEpoch(currentDay);
-	for (auto& security : securities) {
-		std::string url = buildURL(security, currentDay, nextDay, crumb);
-		std::string data = performRequest(url, cookie);
-		SecurityData securityData = mapToSecurityData(data);
-		securityDataMap.insert({ security, securityData });
-	}
-
-	return securityDataMap;
-}
+//std::map<Security, SecurityData> DataFetcher::fetchData(
+//	std::set<Security> securities,
+//	const std::string& startDate,
+//	const std::string& endDate
+//) {
+//	std::map<Security, SecurityData> securityDataMap;
+//	for (auto& security : securities) {
+//		std::string data = performRequest(security, startDate, endDate);
+//		SecurityData securityData = mapToSecurityData(data);
+//		securityDataMap.insert({ security, securityData });
+//	}
+//
+//	return securityDataMap;
+//}
 
 SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
 	std::istringstream stream(csvData);
@@ -179,7 +305,6 @@ SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
 		std::getline(lineStream, highStr, ',');
 		std::getline(lineStream, lowStr, ',');
 		std::getline(lineStream, closeStr, ',');
-		std::getline(lineStream, adjCloseStr, ',');
 		std::getline(lineStream, volumeStr, ',');
 
 		// Convert strings to appropriate types
@@ -187,15 +312,10 @@ SecurityData DataFetcher::mapToSecurityData(std::string csvData) {
 		double high = std::stod(highStr);
 		double low = std::stod(lowStr);
 		double close = std::stod(closeStr);
-		double adjClose = std::stod(adjCloseStr);
 		long volume = std::stol(volumeStr);
 
 		// Create SecurityData object
-		SecurityData securityData(date, open, close, adjClose, volume);
-
-		// Set the high and low since they are optional fields
-		securityData.setHigh(high);
-		securityData.setLow(low);
+		SecurityData securityData(date, open, close, high, low, volume);
 
 		// Return the first data line
 		return securityData;

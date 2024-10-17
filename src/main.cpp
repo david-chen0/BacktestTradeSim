@@ -29,13 +29,9 @@ int main(int argc, char* argv[]) {
 	);
 
 	// Running the strategy
-	while (dcaStrategy.getCurrentDate() < endDate) {
-		dcaStrategy.runStrategy();
-	}
+	dcaStrategy.runStrategy();
 
-	// Printing the results for now, figure out graphing later
-	double strategyValue = dcaStrategy.getStrategyValue();
-	std::cout << "Strategy value: " << strategyValue << std::endl;
+	dcaStrategy.evaluatePerformance();
 
 	return 0;
 }

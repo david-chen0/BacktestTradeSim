@@ -36,9 +36,21 @@ add_executable(
 #set(CURL_LIBRARY "D:/curl/lib/libcurl.dll.a")
 #set(CURL_INCLUDE_DIR "D:/curl/include")
 
-# Link required libraries
 # Find and link CURL
 find_package(CURL REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIRS})
 target_link_libraries(BacktestTradeSim ${CURL_LIBRARIES})
+
+# Add nlohmann::json
+include(FetchContent)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.2 # Check for the latest stable release
+)
+
+FetchContent_MakeAvailable(json)
+
+# Link nlohmann::json to the project
+target_link_libraries(BacktestTradeSim nlohmann_json)

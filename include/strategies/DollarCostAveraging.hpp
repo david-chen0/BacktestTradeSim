@@ -28,12 +28,16 @@ public:
 		latestTimeProcessed("0")
 	{}
 
+	time_t getMaxQueryTime() const override;
+
 private:
 	double income;
 	int timeIntervalInDays;
 	std::string latestTimeProcessed;
 
 	void processDataPoint(const Security& security, const SecurityData& securityData, std::string strategyDate);
+
+	void processData(std::map<Security, SecurityData> securityDataMap, const std::string& currentDate);
 };
 
 #endif
