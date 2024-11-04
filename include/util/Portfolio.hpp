@@ -8,6 +8,19 @@
 #include <set>
 
 /*
+* This class represents a snapshot of our Portfolio at the given time.
+*/
+class PortfolioSnapshot {
+public:
+	PortfolioSnapshot();
+
+private:
+	std::string timestamp; // The timestamp of this snapshot
+	double balance; // The cash balance of the Portfolio at this time
+	std::map<Security, int> positions; // The positions held by the Portfolio at this time
+};
+
+/*
 * The Portfolio class is meant to represent an individual portfolio, which contains information about
 * the securities the portfolio holds, the transactions executed in the portfolio, the balance of the
 * portfolio, and more.

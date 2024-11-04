@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 void Broker::executeTrade(
+	Portfolio& portfolio,
 	int numShares,
 	std::string timestamp,
 	const Security& security,

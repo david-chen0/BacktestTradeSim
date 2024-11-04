@@ -6,8 +6,31 @@
 #include <string>
 #include <sstream>
 
-double Strategy::getStrategyValue() const {
+Portfolio Strategy::getPortfolio() const {
+	return portfolio;
+}
+
+int Strategy::calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2) {
+	// Convert the epoch strings to long long integers
+	long long epoch1 = std::stoll(epochStr1);  // std::stoll converts string to long long
+	long long epoch2 = std::stoll(epochStr2);
+
+	return static_cast<int>(epoch2 - epoch1);
+}
+
+void StrategyContainer::addStrategy(Strategy* strategy) {
+	strategies.push_back(strategy);
+}
+
+time_t StrategyContainer::stringToTime(const std::string& epochString) {
+	time_t epoch;
+	std::istringstream(epochString) >> epoch;
+	return epoch;
+}
+
+double StrategyContainer::getStrategyValue(Strategy* strategy) const {
 	double sum = 0.0;
+	Portfolio portfolio = strategy->getPortfolio();
 
 	// Iterate over the prices we have
 	for (const auto& security : securities) {
@@ -22,14 +45,16 @@ double Strategy::getStrategyValue() const {
 		sum += securityPrice * positionSize;
 	}
 
-	return sum;
+	return sum + portfolio.getBalance();
 }
 
-void Strategy::evaluatePerformance() const {
+void StrategyContainer::evaluatePerformance(Strategy* strategy) const {
+	Portfolio portfolio = strategy->getPortfolio();
+
 	double amountDeposited = portfolio.getTotalDeposited();
 	std::cout << "Total amount deposited: " << amountDeposited << std::endl;
 
-	double finalPortfolioValue = getStrategyValue();
+	double finalPortfolioValue = getStrategyValue(strategy);
 	std::cout << "Final strategy value: " << finalPortfolioValue << std::endl;
 
 	double returnRate = ((finalPortfolioValue / amountDeposited) - 1) * 100;
@@ -38,16 +63,16 @@ void Strategy::evaluatePerformance() const {
 	// TODO: Output other metrics, such as portfolio high, portfolio low, volatility, Sharpe ratio, etc
 }
 
-void Strategy::runStrategy() {
-	// Need this while loop to cURL in batches
-	while (latestQueriedDate != endDate) {
-		std::cout << "Current query starting from: " << latestQueriedDate << std::endl;
+void StrategyContainer::runStrategies() {
+	// The purpose of the while loop is to batch the cURL requests
+	while (currentDate != endDate) {
+		std::cout << "Current query starting from: " << currentDate << std::endl;
 
-		// Set the next date we will query to to the minimum of the endDate or maxQueryTime from the currentDate
+		// Set queryToDate to the next date we will query to, which is the minimum of the endDate and maxQueryTime from the currentDate
 		std::string queryToDate;
-		time_t currentTime = stringToTime(latestQueriedDate);
+		time_t currentTime = stringToTime(currentDate);
 		time_t endTime = stringToTime(endDate);
-		time_t effectiveMaxQueryTime = getMaxQueryTime();
+		time_t effectiveMaxQueryTime = maxQueryTimeStep;
 		if (endTime - currentTime > effectiveMaxQueryTime) {
 			queryToDate = std::to_string(currentTime + effectiveMaxQueryTime);
 		}
@@ -56,23 +81,26 @@ void Strategy::runStrategy() {
 		}
 
 		// Get the data and store it in the map
+		// This method also changes currentDate to the first date in the query and queryToDate to the last date in the query
 		std::map<Security, std::vector<SecurityData>> securityDataMap = DataFetcher::fetchData(
 			securities,
-			latestQueriedDate,
+			currentDate,
 			queryToDate
 		);
 
+		std::cout << "currentDate: " << currentDate << std::endl;
 		std::cout << "queryToDate: " << queryToDate << std::endl;
-		std::cout << "latestQueriedDate: " << latestQueriedDate << std::endl;
-		if (queryToDate == latestQueriedDate) {
-			std::cout << "queryToDate and latestQueriedDate are equal, strategy is finished" << std::endl;
+		if (queryToDate == currentDate) {
+			std::cout << "queryToDate and currentDate are equal, strategy is finished" << std::endl;
 			break;
 		}
 
-		std::string currentDate = latestQueriedDate;
 		std::string nextDate = "N/A";
-		// Keep processing data until you reach the new latest queried to date
+		// Keep processing data until you reach the queryToDate
 		std::cout << "Starting to process all the data" << std::endl;
+
+		// We must use a while (true) rather than putting the condition in the while loop because the condition
+		// is checked after the core logic is finished, not before. Otherwise, the final loop is skipped
 		while (true) {
 			std::cout << "Processing with current date " << currentDate << std::endl;
 			// List of all the SecurityData for the current day
@@ -92,7 +120,9 @@ void Strategy::runStrategy() {
 				}
 			}
 
-			processData(currentSecurityDataMap, currentDate);
+			for (auto& strategy : strategies) {
+				strategy->processData(currentSecurityDataMap, broker, currentDate);
+			}
 
 			// We are finished if the current date is equal to the query to date
 			if (currentDate == queryToDate) {
@@ -102,36 +132,7 @@ void Strategy::runStrategy() {
 			nextDate = "N/A";
 		}
 
-		// Updating the latestQueriedDate to the end date of this current query
-		latestQueriedDate = queryToDate;
+		// Updating the currentDate to the end date of this current query
+		currentDate = queryToDate;
 	}
-
-	//	// Fetching the security data for the input day
-	//	std::map<Security, SecurityData> securityDataMap = DataFetcher::fetchData(securities, currentDate);
-
-	//for (auto& [security, securityData] : securityDataMap) {
-	//	// Invoke each custom Strategy's processDataPoint method on the security and current date
-	//	processDataPoint(security, securityData, currentDate);
-
-	//	// Updates the security price with the close price
-	//	broker.updateSecurityPrices(security, securityData.getClose());
-	//}
-}
-
-time_t Strategy::stringToTime(const std::string& epochString) {
-	time_t epoch;
-	std::istringstream(epochString) >> epoch;
-	return epoch;
-}
-
-int Strategy::calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2) {
-	// Convert the epoch strings to long long integers
-	long long epoch1 = std::stoll(epochStr1);  // std::stoll converts string to long long
-	long long epoch2 = std::stoll(epochStr2);
-
-	return static_cast<int>(epoch2 - epoch1);
-}
-
-time_t Strategy::getMaxQueryTime() const {
-	return maxQueryTime;
 }

@@ -9,6 +9,7 @@
 #include <ctime>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -27,77 +28,95 @@ public:
 	// Virtual destructor to ensure that the proper destructor(the inheritor's destructor) is called to prevent memory leaks
 	virtual ~Strategy() {}
 
-	// Gets the value of the strategy's portfolio
-	double getStrategyValue() const;
-
-	// Prints some info about the strategy's performance
-	void evaluatePerformance() const;
-
-	// Method to run the strategy by calling processDataPoint
-	void runStrategy();
-
-	// Updates the price of the passed in Security to the input price, which is normally the close price
-	void updateSecurityPrice(Security& security, double price);
-
-	// Converts a string representing epoch time to a time_t object
-	static time_t stringToTime(const std::string& epochString);
-
-	// Increments by 1 day, skipping weekends if needed, to return the next business day. Does not consider holidays/closed market days.
-	static std::string nextBusinessDay(const std::string& epochString);
+	// Gets the portfolio for read-only operations
+	Portfolio getPortfolio() const;
 
 	// Given two epoch strings, finds the difference epochStr2 - epochStr1 and returns it as an int
 	static int calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2);
 
-	// Gets the maxQueryTime variable. Override this to set a maxQueryTime variable in a strategy.
-	virtual time_t getMaxQueryTime() const;
-
+	/*
+	* Method for processing the data that must be overriden by strategies.
+	*
+	* [currentSecurityDataMap]: The current day's map from Security to SecurityData
+	* [broker]: The Broker which holds all the prices. Change this when prices are migrated away from broker
+	* [date]: The date which the data corresponds to
+	*/
+	virtual void processData(
+		std::map<Security, SecurityData> currentSecurityDataMap,
+		Broker& broker,
+		std::string date
+	) {
+		throw std::logic_error("processData method not overridden");
+	};
 
 protected:
 	// Protected constructor to prevent instantiation of the base class
 	Strategy(
-		double startingBalance,
-		std::string startDate,
-		std::string endDate,
-		std::set<Security> securities
-	) : startDate(startDate),
-		latestQueriedDate(startDate),
-		endDate(endDate),
-		portfolio(Portfolio(startingBalance)),
-		broker(Broker(portfolio)),
-		securities(securities)
-	{}
-
-	// The starting date of the strategy, represented as an epoch string
-	std::string startDate;
-
-	// The ending date of the strategy, represented as an epoch string
-	std::string endDate;
+		double startingBalance
+	) : portfolio(Portfolio(startingBalance)) {}
 
 	// The portfolio storing all the securities that were traded, even if their positions were closed
 	Portfolio portfolio;
+};
 
-	// The Broker client used for executing trades
+/*
+* The StrategyContainer class is meant to contain multiple strategies and then run them at the same time using the same info,
+* with the only difference being each individual strategy's logic.
+* 
+* [startDate]: The start date for the strategy
+* [endDate]: The end date for the strategy
+* [maxQueryTimeStep]: The maximum amount of time for each cURL request to contain. Default set to 1 year.
+* [securities]: The set of securities that the strategy will consider
+*/
+class StrategyContainer {
+public:
+	StrategyContainer(
+		std::string startDate,
+		std::string endDate,
+		std::set<Security> securities,
+		time_t maxQueryTimeStep = time_t(31536000)
+	) : startDate(startDate),
+		currentDate(startDate),
+		endDate(endDate),
+		securities(securities),
+		maxQueryTimeStep(maxQueryTimeStep)
+	{}
+
+	// Adds a strategy to the vector of strategies. Note that this does not check if the strategy already exists in the vector
+	void addStrategy(Strategy* strategy);
+
+	// Converts a string representing epoch time to a time_t object
+	static time_t stringToTime(const std::string& epochString);
+
+	// Gets the total value of a strategy's portfolio
+	double getStrategyValue(Strategy* strategy) const;
+
+	// Prints some info about a strategy's performance
+	void evaluatePerformance(Strategy* strategy) const;
+
+	// Method to run all the strategies provided simultaneously.
+	// TODO: Likely want to make a method that is like runStrategiesUntil which will run strategies to an input time(less than endDate and more than currentDate)
+	void runStrategies();
+
+private:
+	// This is initialized with the default constructor
 	Broker broker;
 
-	// Set of securities that are to be considered
+	// Vector of all the strategies to run
+	std::vector<Strategy*> strategies;
+
+	std::string startDate;
+
+	std::string currentDate;
+
+	std::string endDate;
+
+	// Set of all securities to consider across all strategies
 	std::set<Security> securities;
 
 	// Maximum amount of time difference from startDate to endDate we want in a scan
 	// The purpose of this is to set a limit on the amount of data we store in memory
-	// Consider making this public so that a strategy can override it
-	const time_t maxQueryTime = 31536000; // 1 year
-
-	// Latest date(as an epoch string) that we've queried for data
-	std::string latestQueriedDate;
-
-	// NEED TO CHANGE THIS TO PROCESS ALL SECURITIES TOGETHER, NOT JUST ONE SECURITY AT A TIME
-	// workflow: call processData, processData either looks for the strategy's currentDate or uses the first date in the jsons,
-	// then processes them all together
-	virtual void processData(std::map<Security, SecurityData> currentSecurityDataMap, const std::string& currentDate) = 0;
-
-	// Takes in a data point and outputs an action(long, short, etc).
-	// Implemented as a pure virtual method to force inheriting classes to override this method.
-	//virtual void processData(const Security& security, const SecurityData& securityData, std::string currentDate) = 0;
+	const time_t maxQueryTimeStep = 31536000; // 1 year
 };
 
 #endif

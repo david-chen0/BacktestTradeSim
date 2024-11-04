@@ -2,6 +2,7 @@
 #define DOLLARCOSTSTRATEGY_HPP
 
 #include "Strategy.hpp"
+#include "../util/Broker.hpp"
 
 /*
 * DollarCostAveraging class represents the dollar cost averaging(DCA) strategy,
@@ -17,27 +18,24 @@ class DollarCostAveraging : public Strategy {
 public:
 	DollarCostAveraging(
 		double startingBalance,
-		std::string startDate,
-		std::string endDate,
-		std::set<Security> securities,
 		double income,
-		int timeInterval
-	) : Strategy(startingBalance, startDate, endDate, securities),
+		int timeIntervalInDays
+	) : Strategy(startingBalance),
 		income(income),
 		timeIntervalInDays(timeIntervalInDays),
 		latestTimeProcessed("0")
 	{}
 
-	time_t getMaxQueryTime() const override;
+	void processData(
+		std::map<Security, SecurityData> securityDataMap,
+		Broker& broker,
+		std::string date
+	) override;
 
 private:
 	double income;
 	int timeIntervalInDays;
 	std::string latestTimeProcessed;
-
-	void processDataPoint(const Security& security, const SecurityData& securityData, std::string strategyDate);
-
-	void processData(std::map<Security, SecurityData> securityDataMap, const std::string& currentDate);
 };
 
 #endif

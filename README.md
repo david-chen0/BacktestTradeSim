@@ -1,50 +1,44 @@
 # BacktestTradeSim
-Personal project for backtesting framework for my trading ideas. Still WIP
+Still very WIP, don't forget to update all of this
 
-## Implementation
-### Transaction Class
-Represents a transaction.
+Current logic:
+1. Strategy is initialized with a starting balance, start date, end date, and a set of securities to consider.
 
-Variables:
-* security: The security that was traded
-* cost: The cost to acquire this security
-* date: The day this security was acquired(Can also think about swapping this for `timestamp` represented with an epoch number)
-### Strategy Class
-Represents a trading strategy
+2. Data is cURLed from Yahoo finance's API. This will get a specific number of days of data first(number of days to retrieve can be overriden)
+for all of the specified securities to consider. The purpose of this batching is to save memory locally and also reduce the number of cURL
+requests we send.
 
-Ideas and logic moved to Strategy.hpp
+Note that Yahoo finance API has a very big caveat of granularity,
+as the data is only available by day rather than more granular such as by minute. This is perfectly fine for some longer term
+strategies but fails for short term strategies or immediate strategies.
 
-### DataFetcher Class
-Fetches the data from our data source
+3. Overriding strategies must override the processData method, which takes in a map from Security to SecurityData and a string representing date.
+The string represents the day to consider while the map maps from Security(all securities from the input set are included) to that security's
+data for the day.
 
-Variables:
-* apiKey: This will likely either be one of the inputs of the program or be required to be hardcoded into a file. Make sure to add it to .gitignore if we do hardcode it
+4. The strategy makes its decisions, places orders, and then the day is advanced until the end date is reached.
 
-Methods:
-* loadData: Loads the data for the input security, time(window), and securityType
 
-### Main functionality
-This will be the main file that will be called and route the utility calls
+TODOs(in order from top to bottom):
+Make an outline with dates on when i want to finish what
 
-Variables:
-* strategy: This will be the strategy that is used
 
-Methods:
-* chooseTimeframe: Allows the user to pick their timeframe to run the test over
-* runBacktest: Runs the backtest itself
-* loadData: This will likely be a helper method called in `runBacktest` to get the needed data and polish it
-* applyStrategy: This will assign the strategy that we want to use. Can maybe be in the `init` rather than as a separate method
+11/5 DONE
+Make a strategy container. The purpose of this container is to take strategies, hold common factors(ex: broker, startDate, endDate), and then run them in parallel
 
-## Data
-Find an open source Yahoo Finance C++ library. Choosing this because Yahoo finance libraries will give good historical data but not real-time data, which we don't need. Also since there wouldn't be any throttling.
+11/8
+Track the portfolio's financial data over time(total value, total input amount, any future financial metrics)
 
-## Graphing
-C++ Backend: Processes data, exports results to JSON.
-Web Front-End: Fetches JSON data, visualizes it using React framework and libraries like Chart.js.
-Server: Serve static files or use a dynamic API to deliver data. Can likely skip this step since the user will be the server.
-Deployment: Host your application on Github Pages.
+11/10
+Add graphing
 
-## Testing
-Make some unit tests for the methods
+11/12
+Shouldn't keep track of security prices within Broker, figure out a different place to keep track of it.
 
-Some easier integ tests(ex: can pick and choose a strategy such as dollar cost averaging for integ test)
+11/14
+Switch maps to unordered_maps for performance
+
+FIGURE OUT HOW TO DO THIS AND MAKE A TIMELINE FOR IT
+Make this more generic so that outside projects can call it too
+
+Add financial metrics such as volatility(per stock and whole portfolio), covariance(per stock duo), sharpe ratio, etc
