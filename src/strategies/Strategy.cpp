@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-Portfolio Strategy::getPortfolio() const {
+Portfolio Strategy::getPortfolio() {
 	return portfolio;
 }
 
@@ -61,6 +61,18 @@ void StrategyContainer::evaluatePerformance(Strategy* strategy) const {
 	std::cout << "Return rate: " << returnRate << "%" << std::endl;
 
 	// TODO: Output other metrics, such as portfolio high, portfolio low, volatility, Sharpe ratio, etc
+}
+
+void StrategyContainer::getStrategyPortfolioSnapshots(Strategy* strategy) const {
+	Portfolio portfolio = strategy->getPortfolio();
+
+	std::cout << "Getting portfolio snapshots for strategy " << strategy->strategyName << std::endl;
+	for (const auto& [date, portfolioSnapshot] : portfolio.getAllSnapshots()) {
+		std::cout << "Listing positions for epoch time " << date << std::endl;
+		for (const auto& [security, numShares] : portfolioSnapshot.positions) {
+			std::cout << "Holding " << numShares << " of " << security.getIdentifier() << std::endl;
+		}
+	}
 }
 
 void StrategyContainer::runStrategies() {
@@ -122,6 +134,13 @@ void StrategyContainer::runStrategies() {
 
 			for (auto& strategy : strategies) {
 				strategy->processData(currentSecurityDataMap, broker, currentDate);
+
+				std::unordered_map<std::string, PortfolioSnapshot> portfolioSnapshots = strategy->getPortfolio().getAllSnapshots();
+				std::cout << "Size of map before:" << portfolioSnapshots.size() << std::endl;
+				strategy->getPortfolio().takeSnapshot(currentDate);
+				// ISSUE IS HERE, for some reason the snapshot isn't persisting. the size before is 0, size during is 1, and size after is 0
+				// my guess is due to the fact that strategy is a pointer, something incorrect with the pointer logic
+				std::cout << "Size of map after:" << portfolioSnapshots.size() << std::endl;
 			}
 
 			// We are finished if the current date is equal to the query to date

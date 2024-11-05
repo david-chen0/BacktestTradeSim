@@ -6,17 +6,25 @@
 
 #include <map>
 #include <set>
+#include <unordered_map>
 
 /*
 * This class represents a snapshot of our Portfolio at the given time.
 */
 class PortfolioSnapshot {
 public:
-	PortfolioSnapshot();
+	PortfolioSnapshot(
+		double balance,
+		double totalBalanceDeposited,
+		std::map<Security, int> positions
+	) : balance(balance),
+		totalBalanceDeposited(totalBalanceDeposited),
+		positions(positions)
+	{};
 
-private:
-	std::string timestamp; // The timestamp of this snapshot
+	//std::string timestamp; // The timestamp of this snapshot THIS SHOULD BE CAPTURED IN THE MAP RATHER THAN STORED HERE FOR MEMORY PURPOSES
 	double balance; // The cash balance of the Portfolio at this time
+	double totalBalanceDeposited; // Stores the net amount of money deposited into the account(ex: depositing $10 5 times gives 50.0) at this time
 	std::map<Security, int> positions; // The positions held by the Portfolio at this time
 };
 
@@ -72,12 +80,19 @@ public:
 	// If the call is not for a trade, then it will be assumed that the balance was changed with a manual withdraw/deposit
 	void adjustBalance(double change, bool isTrade = true);
 
+	// Takes a snapshot of the portfolio and adds it to the portfolioSnapshots map
+	void takeSnapshot(std::string date);
+
+	// Returns all snapshots
+	std::unordered_map<std::string, PortfolioSnapshot> getAllSnapshots() const;
+
 
 private:
 	std::map<Security, int> positions; // Maps from security to number of shares for that security, where a negative number indicates a short positon
 	std::map<Security, std::set<Transaction, CompareTransaction>> transactions; // Maps from security to the set of transactions for that security, which is automatically ordered by transaction timestamp
 	double balance; // Stores the amount of cash available in the account
 	double totalBalanceDeposited; // Stores the net amount of money deposited into the account(ex: depositing $10 5 times gives 50.0)
+	std::unordered_map<std::string, PortfolioSnapshot> portfolioSnapshots; // Map from date to snapshot of the portfolio
 };
 
 #endif

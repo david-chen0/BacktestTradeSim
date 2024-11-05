@@ -28,8 +28,8 @@ public:
 	// Virtual destructor to ensure that the proper destructor(the inheritor's destructor) is called to prevent memory leaks
 	virtual ~Strategy() {}
 
-	// Gets the portfolio for read-only operations
-	Portfolio getPortfolio() const;
+	// Gets the portfolio
+	Portfolio getPortfolio();
 
 	// Given two epoch strings, finds the difference epochStr2 - epochStr1 and returns it as an int
 	static int calculateEpochDifference(const std::string& epochStr1, const std::string& epochStr2);
@@ -49,11 +49,17 @@ public:
 		throw std::logic_error("processData method not overridden");
 	};
 
+	// Name of the strategy
+	const std::string strategyName;
+
 protected:
 	// Protected constructor to prevent instantiation of the base class
 	Strategy(
-		double startingBalance
-	) : portfolio(Portfolio(startingBalance)) {}
+		double startingBalance,
+		std::string strategyName
+	) : portfolio(Portfolio(startingBalance)),
+		strategyName(strategyName)
+	{}
 
 	// The portfolio storing all the securities that were traded, even if their positions were closed
 	Portfolio portfolio;
@@ -93,6 +99,9 @@ public:
 
 	// Prints some info about a strategy's performance
 	void evaluatePerformance(Strategy* strategy) const;
+
+	// Prints all the snapshots of a strategy's portfolio
+	void getStrategyPortfolioSnapshots(Strategy* strategy) const;
 
 	// Method to run all the strategies provided simultaneously.
 	// TODO: Likely want to make a method that is like runStrategiesUntil which will run strategies to an input time(less than endDate and more than currentDate)

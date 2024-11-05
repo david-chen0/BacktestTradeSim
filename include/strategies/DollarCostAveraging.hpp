@@ -20,7 +20,7 @@ public:
 		double startingBalance,
 		double income,
 		int timeIntervalInDays
-	) : Strategy(startingBalance),
+	) : Strategy(startingBalance, "DollarCostAveragingStrategy"),
 		income(income),
 		timeIntervalInDays(timeIntervalInDays),
 		latestTimeProcessed("0")

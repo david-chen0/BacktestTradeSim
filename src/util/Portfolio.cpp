@@ -73,3 +73,26 @@ void Portfolio::adjustBalance(double change, bool isTrade) {
 		totalBalanceDeposited += change;
 	}
 }
+
+void Portfolio::takeSnapshot(std::string date) {
+	std::cout << "Date:" << date << std::endl;
+
+	if (portfolioSnapshots.find(date) != portfolioSnapshots.end()) {
+		std::cout << "Snapshot already exists for date: " << date << std::endl;
+		return;
+	}
+	std::cout << "Snapshot does not exist for date: " << date << std::endl;
+	portfolioSnapshots.try_emplace(
+		date,
+		PortfolioSnapshot(
+			balance,
+			totalBalanceDeposited,
+			positions
+		)
+	);
+	std::cout << "Size of map:" << portfolioSnapshots.size() << std::endl;
+}
+
+std::unordered_map<std::string, PortfolioSnapshot> Portfolio::getAllSnapshots() const {
+	return portfolioSnapshots;
+}

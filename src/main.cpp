@@ -44,7 +44,9 @@ int main(int argc, char* argv[]) {
 	// Running the strategy
 	strategyContainer.runStrategies();
 
+	// Evaluate strategy
 	strategyContainer.evaluatePerformance(&dcaStrategy);
+	strategyContainer.getStrategyPortfolioSnapshots(&dcaStrategy);
 
 	return 0;
 }
